@@ -1,0 +1,19 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: trusted-registry-only
+spec:
+  validationFailureAction: Enforce
+  rules:
+  - name: check-registry
+    match:
+      resources:
+        kinds:
+        - Pod
+    validate:
+      message: "The container uses an untrusted registry. Please use a trusted registry."
+      pattern:
+        spec:
+          containers:
+          - name: "*"
+            image: "cgr.dev/chainguard/*"

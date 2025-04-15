@@ -1,0 +1,30 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: nginx-prometheus-rule
+  namespace: monitoring
+  labels:
+    prometheus: k8s
+    role: alert-rules
+    app.prometheus.io/name: kube-prometheus
+    app.prometheus.io/part-of: kube-prometheus
+spec:
+  groups:
+    - name: nginx-prometheus-rule
+      rules:
+        - alert: NginxDown
+          expr: nginx_up == 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Nginx está fora."
+            description: "O servidor web Nginx está fora do ar."
+        - alert: NginxHighRequestsRate
+          expr: rate(nginx_http_requests_total[5m]) > 10
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Requisições altas no Nginx"
+            description: "O servidor web Nginx está recebendo muitas requisições."
